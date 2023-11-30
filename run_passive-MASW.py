@@ -1,18 +1,20 @@
+"""
+Author : José CUNHA TEIXEIRA
+License : SNCF Réseau, UMR 7619 METIS
+Date : November 30, 2023
+"""
+
 import sys
+import numpy as np
 from os import mkdir, path, system
 from time import time
-
-import matplotlib.pyplot as plt
-import numpy as np
 from obspy import read
 from scipy.fft import fft, fftfreq, rfft, rfftfreq
 from scipy.signal import butter, correlate, filtfilt, tukey
-
-# from stackmaster.core import pws, tfpws, tfpws_dost, robust, adaptive_filter, selective, clusterstack
-
 from display import display_dispersion_img, display_spectrum_img_fromArray, display_seismic_wiggle_fromStream, diag_print
 from obspy2numpy import array_to_stream, stream_to_array
 from signal_processing import normalize, whiten, makeFV
+# from stackmaster.core import pws, tfpws, tfpws_dost, robust, adaptive_filter, selective, clusterstack
 
 
 ### FUNCTIONS -------------------------------------------------------------------------------------
@@ -30,7 +32,7 @@ def cut(TX_raw, ts, t_cut_start, t_cut2):
 
 
 ### DATA DIRECTORIES ------------------------------------------------------------------------------
-project_dir = "/.../project_name/"
+project_dir = "/.../data_passive-MASW/"
 profile = "P1" #Profile number
 data_dir = project_dir + "Raw/" + profile + "/Passive/"
 ### -----------------------------------------------------------------------------------------------

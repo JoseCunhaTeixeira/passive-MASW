@@ -1,9 +1,8 @@
 """
 Author : José CUNHA TEIXEIRA
 License : SNCF Réseau, UMR 7619 METIS
-Date : January 10, 2022
+Date : November 30, 2023
 """
-
 
 import sys
 import colormaps as cmaps

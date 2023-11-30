@@ -1,3 +1,9 @@
+"""
+Author : José CUNHA TEIXEIRA
+License : SNCF Réseau, UMR 7619 METIS
+Date : November 30, 2023
+"""
+
 from math import sqrt
 
 
