@@ -8,24 +8,6 @@ from math import sqrt
 
 
 
-CRED = "\033[91m"
-CYEL = "\033[93m"
-CGRE = "\033[92m"
-BOLD = "\033[1m"
-CEND = "\033[0m"
-
-
-
-def diag_print(case, str1, str2):
-    if case in ("Error", "error", "ERROR"):
-        return print(BOLD + CRED + "ERROR     | " + str1 + "\n          | " + str2 + "\n" + CEND)
-    elif case in ("Warning", "warning", "WARNING"):
-        return print(CYEL + "WARNING   | " + str1 + "\n          | " + str2 + "\n" + CEND)
-    elif case in ("Info", "info", "INFO"):
-        return print(CGRE + "INFO      | " + str1 + "\n          | " + str2 + "\n" + CEND)
-    
-
-
 def verify_expected(kwargs, list):
     for key in kwargs:
         if key not in list:
