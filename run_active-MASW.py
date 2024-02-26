@@ -9,8 +9,7 @@ from obspy import read
 from os import path, mkdir
 from signal_processing import makeFV
 from obspy2numpy import stream_to_array
-from misc import diag_print
-from display import display_seismic_wiggle_fromArray, display_spectrum_img_fromArray, display_dispersion_img
+from display import display_seismic_wiggle_fromArray, display_spectrum_img_fromArray, display_dispersion_img, diag_print
 
 
 
