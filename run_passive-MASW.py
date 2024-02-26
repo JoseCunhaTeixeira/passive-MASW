@@ -14,7 +14,6 @@ from scipy.signal import butter, correlate, filtfilt, tukey
 from display import display_dispersion_img, display_spectrum_img_fromArray, display_seismic_wiggle_fromStream, diag_print
 from obspy2numpy import array_to_stream, stream_to_array
 from signal_processing import normalize, whiten, makeFV
-# from stackmaster.core import pws, tfpws, tfpws_dost, robust, adaptive_filter, selective, clusterstack
 
 
 ### FUNCTIONS -------------------------------------------------------------------------------------
@@ -376,15 +375,6 @@ for i_r in range(Nx) :
     st = array_to_stream(arr.T, dt, range(arr.shape[0]))
     st = st.stack(stack_type=("pw", pws_nu))
     interf_db_stack[i_r, 0:int(shot_length/dt)] = st[0].data
-
-    # Other stacks from stackmaster
-    # interf_db_stack[i_r, 0:int(shot_length/dt)] = tfpws(np.hstack((arr, np.zeros((arr.shape[0], int(1.75/dt))))),p=2)[0:int(shot_length/dt)]
-    # interf_db_stack[i_r, 0:int(shot_length/dt)] = tfpws(arr,p=5)
-    # interf_db_stack[i_r, 0:int(shot_length/dt)] = tfpws_dost(arr,p=2)
-    # interf_db_stack[i_r, 0:int(shot_length/dt)] = robust(arr,epsilon=1E-5,maxstep=10,win=None,stat=False,ref=None)
-    # interf_db_stack[i_r, 0:int(shot_length/dt)] = adaptive_filter(arr,g=1)
-    # interf_db_stack[i_r, 0:int(shot_length/dt)] = selective(arr,cc_min=0,epsilon=1E-5,maxstep=10,win=None,stat=False,ref=None)
-    # interf_db_stack[i_r, 0:int(shot_length/dt)] = clusterstack(arr,h=0.90,win=None,axis=0,normalize=True,plot=False)
 
 # Stream format ---
 offsets = np.abs(x_sensors - x_sensors[0])
