@@ -13,7 +13,6 @@ from matplotlib.widgets import PolygonSelector
 from scipy.fft import rfft, rfftfreq
 from scipy.interpolate import interp1d
 from scipy.signal import savgol_filter
-
 from display import diag_print
 
 np.set_printoptions(threshold=sys.maxsize)
