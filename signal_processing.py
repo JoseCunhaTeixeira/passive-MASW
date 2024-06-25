@@ -13,6 +13,7 @@ from matplotlib.widgets import PolygonSelector
 from scipy.fft import rfft, rfftfreq
 from scipy.interpolate import interp1d
 from scipy.signal import savgol_filter
+
 from display import diag_print
 
 np.set_printoptions(threshold=sys.maxsize)
@@ -26,7 +27,7 @@ def normalize(array, dt, clip_factor=6, clip_weight=10, norm_win=10, norm_method
     Temporal normalization.
     """
     array2 = np.copy(array)
-    for i, tr in enumerate(array2.T):
+    for tr in array2.T:
         if norm_method == 'clipping':
             lim = clip_factor * np.std(tr.data)
             tr[tr > lim] = lim
@@ -128,7 +129,7 @@ def makeFV(XT, si, offset, vmin, vmax, dv, fmax):
         vs : velocity axis
         FV: dispersion plot
     """
-    Nx, Nt = XT.shape
+    Nt = XT.shape[1]
     XF = rfft(XT, axis=(1), n=Nt)
 
     fs = rfftfreq(Nt, si)

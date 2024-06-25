@@ -9,15 +9,33 @@ import colormaps as cmaps
 import matplotlib.pyplot as plt
 import numpy as np
 from signal_processing import pick, resamp
+from folders import results_dir
+
 
 plt.rcParams.update({'font.size': 28})
 
 
 
-
-dir = "/.../data_passive-MASW//Results/P1/Passive/all-Sl5-Ss1-FK30-PWS2/W96/"
+### PASSIVE ----------
 profile = "P1"
-mode = 0 #mode number
+params = "all-Sl5-Ss1-FK30-PWS2"
+N_MASW = 96
+dir = f"{results_dir}/{profile}/Passive/{params}/W{N_MASW}/"
+
+
+
+### ACTIVE ----------
+# profile = "P1"
+# N_MASW = 96
+# dir = f"{results_dir}/P1/Active/W{N_MASW}/"
+
+
+
+
+mode = 0 #mode number to pick
+
+
+
 
 FV = np.load(dir + f"{profile}_dispIm.npy")
 fs = np.load(dir+ f"{profile}_fs.npy")

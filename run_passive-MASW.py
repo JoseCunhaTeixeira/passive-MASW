@@ -10,10 +10,13 @@ from os import mkdir, path, system
 from time import time
 from obspy import read
 from scipy.fft import fft, fftfreq, rfft, rfftfreq
-from scipy.signal import butter, correlate, filtfilt, tukey
+from scipy.signal import butter, correlate, filtfilt
+from scipy.signal.windows import tukey
 from display import display_dispersion_img, display_spectrum_img_fromArray, display_seismic_wiggle_fromStream, diag_print
 from obspy2numpy import array_to_stream, stream_to_array
 from signal_processing import normalize, whiten, makeFV
+# from stackmaster.core import pws, tfpws, tfpws_dost, robust, adaptive_filter, selective, clusterstack
+from folders import results_dir, data_dir
 
 
 ### FUNCTIONS -------------------------------------------------------------------------------------
@@ -31,9 +34,8 @@ def cut(TX_raw, ts, t_cut_start, t_cut2):
 
 
 ### DATA DIRECTORIES ------------------------------------------------------------------------------
-project_dir = "/.../data_passive-MASW/"
 profile = "P1" #Profile number
-data_dir = project_dir + "Raw/" + profile + "/Passive/"
+data_dir = f"{data_dir}/" + profile + "/Passive/"
 ### -----------------------------------------------------------------------------------------------
 
 
@@ -42,8 +44,18 @@ data_dir = project_dir + "Raw/" + profile + "/Passive/"
 ### RECORDS PARAMS --------------------------------------------------------------------------------
 if profile == 'P1' :
     data_files = ["101", "102", "103", "104", "105", "106"]
-    durations = [120, 120, 120, 120, 120, 120]
+    durations = [130, 90, 90, 90, 90, 90]
+    FK_ratio_min = 0.3
 
+if profile == 'P2':
+    data_files = ["201", "202", "203", "204", "205", "206", "207", "208", "209", "210"]
+    durations = [90, 90, 90, 90, 90, 90, 90, 90, 90, 90]
+    FK_ratio_min = 0.6
+
+if profile == 'P3':
+    data_files = ["301", "302", "303", "304", "305", "306", "307", "308", "309", "310"]
+    durations = [90, 90, 90, 90, 90, 90, 90, 90, 90, 90]
+    FK_ratio_min = 0.6
 
 delta_cut = 5
 window_step = 1
@@ -78,7 +90,7 @@ if Nx != N_sensors :
     diag_print("Error", "passive_processing", "Nx != N_sensors")
     raise SystemExit
 
-x_sensors = np.arange(0.0, 96.0, 1.0)
+x_sensors = np.arange(0.0, 24, 0.25)
 
 x_sensors = x_sensors[sensor_start:sensor_end+1]
 if len(x_sensors) != N_sensors :
@@ -129,8 +141,7 @@ interf_db_stack = np.zeros((Nx, int(interf_length/dt)))
 
 
 ### FK SELECTION ----------------------------------------------------------------------------------
-FK_ratio_min = 0.6
-N_segs_max = 10
+N_segs_max = None
 FK_ratios = []
 ### -----------------------------------------------------------------------------------------------
 
@@ -146,9 +157,9 @@ pws_nu = 2
 
 ### RESULTS DIRECTORIES ---------------------------------------------------------------------------
 if N_segs_max == None :
-    results_dir = project_dir + "Results/" + profile + f"/Passive/all-Sl{delta_cut}-Ss{window_step}-FK{int(FK_ratio_min*100)}-PWS{pws_nu}/"
+    results_dir = f"{results_dir}/" + profile + f"/Passive/all-Sl{delta_cut}-Ss{window_step}-FK{int(FK_ratio_min*100)}-PWS{pws_nu}/"
 elif N_segs_max != None :
-    results_dir = project_dir + "Results/" + profile + f"/Passive/all-Sl{delta_cut}-Ss{window_step}-FK{int(FK_ratio_min*100)}-Nsegsmax{N_segs_max}-PWS{pws_nu}/"
+    results_dir = f"{results_dir}/" + profile + f"/Passive/all-Sl{delta_cut}-Ss{window_step}-FK{int(FK_ratio_min*100)}-Nsegsmax{N_segs_max}-PWS{pws_nu}/"
 if not path.exists(results_dir):
         mkdir(results_dir)
 
@@ -156,10 +167,10 @@ results_dir = results_dir + f"W{W_MASW}/"
 if not path.exists(results_dir):
         mkdir(results_dir)
 
-if not path.exists(results_dir + f"{sensor_start}-{sensor_end}/"):
-    mkdir(results_dir + f"{sensor_start}-{sensor_end}/")
+if not path.exists(results_dir):
+    mkdir(results_dir)
 
-file_path = results_dir + f"{sensor_start}-{sensor_end}/" + f"{profile}_FKratios.txt"
+file_path = results_dir + f"{profile}_FKratios.txt"
 if path.exists(file_path):
     system(f"rm {file_path}")
 file_FK_ratios = open(file_path, "a")
@@ -235,7 +246,7 @@ for segment_i, file in enumerate(files):
 
 
     ### CUT ---------------------------------------------------------------------------------------
-    TX,_ = cut(TX_raw, ts_raw, cut_start, cut_start+delta_cut)
+    TX, _ = cut(TX_raw, ts_raw, cut_start, cut_start+delta_cut)
     ### -------------------------------------------------------------------------------------------
 
 
@@ -322,6 +333,7 @@ for segment_i, file in enumerate(files):
 
                 correl_sym = np.insert(correl_sym, 0, tmp_0)
                 correl_sym = correl_sym[0:int(shot_length/dt)]
+                
                 for i, (correl_val, tukey_val)  in enumerate(zip(correl_sym, tukey(len(correl_sym)))):
                     if i >= len(correl_sym)//2:
                         correl_sym[i] = correl_val * tukey_val
@@ -376,18 +388,27 @@ for i_r in range(Nx) :
     st = st.stack(stack_type=("pw", pws_nu))
     interf_db_stack[i_r, 0:int(shot_length/dt)] = st[0].data
 
+    # Other stacks from stackmaster
+    # interf_db_stack[i_r, 0:int(shot_length/dt)] = tfpws(np.hstack((arr, np.zeros((arr.shape[0], int(1.75/dt))))),p=2)[0:int(shot_length/dt)]
+    # interf_db_stack[i_r, 0:int(shot_length/dt)] = tfpws(arr,p=5)
+    # interf_db_stack[i_r, 0:int(shot_length/dt)] = tfpws_dost(arr,p=2)
+    # interf_db_stack[i_r, 0:int(shot_length/dt)] = robust(arr,epsilon=1E-5,maxstep=10,win=None,stat=False,ref=None)
+    # interf_db_stack[i_r, 0:int(shot_length/dt)] = adaptive_filter(arr,g=1)
+    # interf_db_stack[i_r, 0:int(shot_length/dt)] = selective(arr,cc_min=0,epsilon=1E-5,maxstep=10,win=None,stat=False,ref=None)
+    # interf_db_stack[i_r, 0:int(shot_length/dt)] = clusterstack(arr,h=0.90,win=None,axis=0,normalize=True,plot=False)
+
 # Stream format ---
 offsets = np.abs(x_sensors - x_sensors[0])
 st_interf = array_to_stream(interf_db_stack.T, dt, offsets)
-name_path = results_dir + f"{sensor_start}-{sensor_end}/" +  f"{profile}_VSG.segy"
+name_path = results_dir +  f"{profile}_VSG.segy"
 st_interf.write(name_path, format="SEGY", data_encoding=1, byteorder=sys.byteorder)
 
-name_path = results_dir + f"{sensor_start}-{sensor_end}/" + f"{profile}_VSG.png"
+name_path = results_dir + f"{profile}_VSG.png"
 display_seismic_wiggle_fromStream(st_interf, x_sensors, display_method=display_method, path=name_path, norm_method="trace")
 
 # Spectrum ---
-name_path1 = results_dir + f"{sensor_start}-{sensor_end}/" + f"{profile}_spectrogram.png"
-name_path2 = results_dir + f"{sensor_start}-{sensor_end}/" + f"{profile}_spectrogramFirstLastTrace.png"
+name_path1 = results_dir + f"{profile}_spectrogram.png"
+name_path2 = results_dir + f"{profile}_spectrogramFirstLastTrace.png"
 display_spectrum_img_fromArray(interf_db_stack.T, dt, offsets, display_method=display_method, path1=name_path1, path2=name_path2, norm_method="trace")
 ### -----------------------------------------------------------------------------------------------
 
@@ -402,16 +423,16 @@ arr = np.copy(interf_db_stack)
 offsets = np.abs(x_sensors - x_sensors[0])
 (FV, vs, fs) = makeFV(arr, dt, offsets, vmin, vmax+0.1, 0.1, fmax)
 
-name_path = results_dir + f"{sensor_start}-{sensor_end}/" + f"{profile}_dispIm.png"
+name_path = results_dir + f"{profile}_dispIm.png"
 display_dispersion_img(FV, fs, vs, display_method='save', path=name_path, normalization='Frequency')
 
-name_path = results_dir + f"{sensor_start}-{sensor_end}/" + f"{profile}_dispIm.npy"
+name_path = results_dir + f"{profile}_dispIm.npy"
 np.save(name_path, FV)
 
-name_path = results_dir + f"{sensor_start}-{sensor_end}/" + f"{profile}_fs.npy"
+name_path = results_dir + f"{profile}_fs.npy"
 np.save(name_path, fs)
 
-name_path = results_dir + f"{sensor_start}-{sensor_end}/" + f"{profile}_vs.npy"
+name_path = results_dir + f"{profile}_vs.npy"
 np.save(name_path, vs)
 ### -----------------------------------------------------------------------------------------------
 
@@ -420,8 +441,7 @@ np.save(name_path, vs)
 ### END -------------------------------------------------------------------------------------------
 file_FK_ratios.close()
 
-file_log = open(results_dir + f"{sensor_start}-{sensor_end}/" + f"{profile}_log.txt", "a")
-file_log.write(f"Project directory : {project_dir}\n")
+file_log = open(results_dir + f"{profile}_log.txt", "a")
 file_log.write(f"Profil : {profile}\n")
 file_log.write(f"Data directory : {data_dir}\n\n")
 file_log.write(f"Data files : {data_files}\n")

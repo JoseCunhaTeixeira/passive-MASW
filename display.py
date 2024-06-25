@@ -6,6 +6,7 @@ Date : November 30, 2023
 
 import numpy as np
 import matplotlib.pyplot as plt
+from misc import verify_expected
 import colormaps as cmaps
 
 plt.rcParams.update({'font.size': 22})
@@ -29,16 +30,6 @@ def diag_print(case, str1, str2):
         return print(CYEL + "WARNING   | " + str1 + "\n          | " + str2 + "\n" + CEND)
     elif case in ("Info", "info", "INFO"):
         return print(CGRE + "INFO      | " + str1 + "\n          | " + str2 + "\n" + CEND)
-
-
-
-
-#----------------------------------------------------------------------------------------------------
-def verify_expected(kwargs, list):
-    for key in kwargs:
-        if key not in list:
-            diag_print("ERROR", "", "Argument {} not expected".format(key))
-            raise SystemExit
 
 
 
