@@ -156,10 +156,18 @@ pws_nu = 2
 
 
 ### RESULTS DIRECTORIES ---------------------------------------------------------------------------
+if not path.exists(results_dir):
+    mkdir(results_dir)
+results_dir = f"{results_dir}/" + profile
+if not path.exists(results_dir):
+    mkdir(results_dir)
+results_dir = f"{results_dir}/" + "Passive"
+if not path.exists(results_dir):
+    mkdir(results_dir)
 if N_segs_max == None :
-    results_dir = f"{results_dir}/" + profile + f"/Passive/all-Sl{delta_cut}-Ss{window_step}-FK{int(FK_ratio_min*100)}-PWS{pws_nu}/"
+    results_dir = f"{results_dir}/" + f"all-Sl{delta_cut}-Ss{window_step}-FK{int(FK_ratio_min*100)}-PWS{pws_nu}/"
 elif N_segs_max != None :
-    results_dir = f"{results_dir}/" + profile + f"/Passive/all-Sl{delta_cut}-Ss{window_step}-FK{int(FK_ratio_min*100)}-Nsegsmax{N_segs_max}-PWS{pws_nu}/"
+    results_dir = f"{results_dir}/" + f"all-Sl{delta_cut}-Ss{window_step}-FK{int(FK_ratio_min*100)}-Nsegsmax{N_segs_max}-PWS{pws_nu}/"
 if not path.exists(results_dir):
         mkdir(results_dir)
 
