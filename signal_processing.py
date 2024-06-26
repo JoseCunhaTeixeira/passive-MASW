@@ -16,6 +16,8 @@ from scipy.signal import savgol_filter
 
 from display import diag_print
 
+from slant_stack import slant_stack
+
 np.set_printoptions(threshold=sys.maxsize)
 
 
@@ -139,13 +141,34 @@ def makeFV(XT, si, offset, vmin, vmax, dv, fmax):
 
     vs = np.arange(vmin, vmax+dv, dv)
 
+
+
+    ## ------
+
     FV = np.zeros((len(vs), len(fs)))
 
-    dphi = 2 * np.pi * offset[:,np.newaxis,np.newaxis] * fs[np.newaxis,np.newaxis,:] / vs[np.newaxis,:,np.newaxis]
-    XF = XF[:,np.newaxis,:]
-    FV = np.abs(np.sum(np.exp(1j*dphi)*XF/abs(XF), axis=0))
+    # dphi = 2 * np.pi * offset[:,np.newaxis,np.newaxis] * fs[np.newaxis,np.newaxis,:] / vs[np.newaxis,:,np.newaxis]
+    # XF = XF[:,np.newaxis,:]
+    # FV = np.abs(np.sum(np.exp(1j*dphi)*XF/abs(XF), axis=0))
+
+    for kv, vv in enumerate(vs):
+        dphi = 2 * np.pi * offset[..., None] * fs / vv
+        FV[kv, :] = np.abs( np.sum(XF/np.abs(XF)*np.exp(1j*dphi), axis=0) )
+
+    # for j, v in enumerate(vs):
+    #     for i, f in enumerate(fs):
+    #         dphi = 2 * np.pi * offset * f / v
+    #         sum_exp = 0
+    #         for k in range(XF.shape[0]):
+    #             exp_term = np.exp(1j * dphi[k]) * (XF[k, i] / abs(XF[k, i]))
+    #             sum_exp += exp_term
+    #             FV[j, i] = abs(sum_exp)
+
+
+    # FV = slant_stack(XF, offset, fs, vs)
 
     return FV, vs, fs
+
 
 
 
