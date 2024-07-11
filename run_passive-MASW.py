@@ -17,6 +17,7 @@ from obspy2numpy import array_to_stream, stream_to_array
 from signal_processing import normalize, whiten, makeFV
 # from stackmaster.core import pws, tfpws, tfpws_dost, robust, adaptive_filter, selective, clusterstack
 from folders import results_dir, data_dir
+from slant_stack import slant_stack
 
 
 ### FUNCTIONS -------------------------------------------------------------------------------------
@@ -429,7 +430,7 @@ diag_print("Info", f"Main", f"Slant Stack")
 arr = np.copy(interf_db_stack)
 
 offsets = np.abs(x_sensors - x_sensors[0])
-(FV, vs, fs) = makeFV(arr, dt, offsets, vmin, vmax+0.1, 0.1, fmax)
+(FV, vs, fs) = slant_stack(arr, dt, offsets, vmin, vmax+0.1, 0.1, fmax)
 
 name_path = results_dir + f"{profile}_dispIm.png"
 display_dispersion_img(FV, fs, vs, display_method='save', path=name_path, normalization='Frequency')

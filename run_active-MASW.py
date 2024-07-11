@@ -7,15 +7,16 @@ Date : November 30, 2023
 import numpy as np
 from obspy import read
 from os import path, mkdir
-from signal_processing import makeFV
 from obspy2numpy import stream_to_array
 from misc import diag_print
 from display import display_spectrum_img_fromArray, display_dispersion_img, display_seismic_wiggle_fromStream
 from folders import results_dir, data_dir
+from slant_stack import slant_stack
+from signal_processing import makeFV
 
 
 
-profile = "P1" #Profile number
+profile = "P2" #Profile number
 data_dir = f"{data_dir}/" + profile + "/Active/"
 if not path.exists(results_dir):
     mkdir(results_dir)
@@ -26,7 +27,7 @@ results_dir = f"{results_dir}/" + "Active/"
 if not path.exists(results_dir):
     mkdir(results_dir)
 
-files = ["1001", "1002"]
+files = [profile[1:] + "001", profile[1:] + "002"]
 x_sources = [-0.125, 23.875]
 
 N_sensors = 96
@@ -93,7 +94,7 @@ for file, x_source, start_MASW in zip(files, x_sources, starts_MASW) :
 
     ## SLANT STACK ------------------------------------------------------
     offsets = np.abs(x_sensors - x_source)
-    (FV, vs, fs) = makeFV(data_array.T[start_MASW:start_MASW+W_MASW,:], dt, offsets[start_MASW:start_MASW+W_MASW], vmin, vmax+dv, dv, fmax)
+    (FV, vs, fs) = slant_stack(data_array.T[start_MASW:start_MASW+W_MASW,:], dt, offsets[start_MASW:start_MASW+W_MASW], vmin, vmax, dv, fmax)
     name_path = f'{results_dir}' + file + "/" + f"W{W_MASW}/" + f"{file}_dispIm.png"
     display_dispersion_img(FV, fs, vs, display_method=display_method, path=name_path, normalization="Frequency")
 
