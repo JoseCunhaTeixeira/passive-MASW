@@ -142,7 +142,6 @@ def makeFV(XT, si, offset, vmin, vmax, dv, fmax):
     vs = np.arange(vmin, vmax+dv, dv)
 
 
-
     ## ------
 
     FV = np.zeros((len(vs), len(fs)))
@@ -151,21 +150,22 @@ def makeFV(XT, si, offset, vmin, vmax, dv, fmax):
     # XF = XF[:,np.newaxis,:]
     # FV = np.abs(np.sum(np.exp(1j*dphi)*XF/abs(XF), axis=0))
 
-    for kv, vv in enumerate(vs):
-        dphi = 2 * np.pi * offset[..., None] * fs / vv
-        FV[kv, :] = np.abs( np.sum(XF/np.abs(XF)*np.exp(1j*dphi), axis=0) )
+    # for kv, vv in enumerate(vs):
+    #     dphi = 2 * np.pi * offset[..., None] * fs / vv
+    #     FV[kv, :] = np.abs( np.sum(XF/np.abs(XF)*np.exp(1j*dphi), axis=0) )
+    
+    for j, v in enumerate(vs):
+        for i, f in enumerate(fs):   
+            sum_exp = 0
+            for k in range(len(offset)):
+                dphi = 2 * np.pi * offset[k] * f / v
+                exp_term = np.exp(1j * dphi) * (XF[k, i] / abs(XF[k, i]))
+                sum_exp += exp_term
+                FV[j, i] = abs(sum_exp)
 
-    # for j, v in enumerate(vs):
-    #     for i, f in enumerate(fs):
-    #         dphi = 2 * np.pi * offset * f / v
-    #         sum_exp = 0
-    #         for k in range(XF.shape[0]):
-    #             exp_term = np.exp(1j * dphi[k]) * (XF[k, i] / abs(XF[k, i]))
-    #             sum_exp += exp_term
-    #             FV[j, i] = abs(sum_exp)
 
-
-    # FV = slant_stack(XF, offset, fs, vs)
+    # FV = np.array(FV)
+    # FV = FV.reshape((len(fs), len(vs)))
 
     return FV, vs, fs
 
