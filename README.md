@@ -1,4 +1,4 @@
-![Passive-MASW](https://github.com/user-attachments/assets/f7cfe4a8-a706-43f5-aae6-f9a13ea56ab7)
+![Git_Passive](https://github.com/user-attachments/assets/d11bbdfe-e3d5-45c7-8165-435d75678b29)
 
 passive-MASW is a Python package for processing passive seismic noise induced by cars or trains through interferometry and Multichannel Analysis of Surface Waves.
 
